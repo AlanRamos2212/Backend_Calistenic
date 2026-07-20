@@ -12,18 +12,16 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import java.util.List;
 
 /**
- * Documento Elasticsearch para ejercicios de calistenia.
- *
- * Mapeo de tipos:
- *  - Text + analyzer "standard": tokeniza y permite fuzzy matching / relevancia (name, description)
- *  - Keyword: valor exacto, usado para filtros y agregaciones (category, level, muscles)
+ * Documento Elasticsearch para rutinas de calistenia (catálogo del sitio web).
+ * Índice independiente de "exercises" para poder buscar ambos tipos de
+ * contenido y combinarlos en un único resultado de búsqueda global.
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(indexName = "exercises")
-public class ExerciseDocument {
+@Document(indexName = "routines")
+public class RoutineDocument {
 
     @Id
     private String id;
@@ -35,14 +33,20 @@ public class ExerciseDocument {
     private String description;
 
     @Field(type = FieldType.Keyword)
-    private String category;   // upper_body, lower_body, core, full_body
+    private String category;       // upper_body, core, lower_body, full_body
 
     @Field(type = FieldType.Keyword)
-    private String level;      // principiante, intermedio, avanzado
+    private String level;          // principiante, intermedio, avanzado
 
     @Field(type = FieldType.Keyword)
-    private String icon;
+    private List<String> exerciseIds;
+
+    @Field(type = FieldType.Integer)
+    private Integer durationMinutes;
+
+    @Field(type = FieldType.Integer)
+    private Integer caloriesEstimate;
 
     @Field(type = FieldType.Keyword)
-    private List<String> muscles;
+    private String hrRange;        // ej. "130-160"
 }

@@ -4,11 +4,16 @@ import com.backend.modulo.document.ExerciseDocument;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
+/**
+ * Repositorio CRUD básico para ExerciseDocument.
+ *
+ * Se usa para operaciones simples: guardar el seed data (DataInitializerService),
+ * contar documentos, buscar por id. La búsqueda avanzada con fuzzy matching,
+ * boost de relevancia y filtros combinados NO vive aquí: se implementa en
+ * SearchService con ElasticsearchOperations + NativeQuery, porque las
+ * "derived queries" (findByXContaining...) no permiten construir queries
+ * bool con fuzziness ni combinar "should" (texto) con "filter" (exactos).
+ */
 @Repository
 public interface ExerciseSearchRepository extends ElasticsearchRepository<ExerciseDocument, String> {
-    
-    // Custom query methods can be defined here, e.g. finding by name or description
-    List<ExerciseDocument> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String name, String description);
 }
