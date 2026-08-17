@@ -1,0 +1,68 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::               (v3.4.13)
+
+2026-08-11T21:31:10.793Z  INFO 1 --- [backend-calistenic] [           main] com.backend.modulo.ModuloApplication     : Starting ModuloApplication v0.0.1-SNAPSHOT using Java 21.0.11 with PID 1 (/app/app.jar started by root in /app)
+2026-08-11T21:31:10.803Z  INFO 1 --- [backend-calistenic] [           main] com.backend.modulo.ModuloApplication     : The following 1 profile is active: "docker"
+2026-08-11T21:31:19.850Z  INFO 1 --- [backend-calistenic] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-08-11T21:31:19.856Z  INFO 1 --- [backend-calistenic] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Elasticsearch repositories in DEFAULT mode.
+2026-08-11T21:31:20.026Z  INFO 1 --- [backend-calistenic] [           main] .RepositoryConfigurationExtensionSupport : Spring Data Elasticsearch - Could not safely identify store assignment for repository candidate interface com.backend.modulo.repository.ExerciseRepository; If you want this repository to be a Elasticsearch repository, consider annotating your entities with one of these annotations: org.springframework.data.elasticsearch.annotations.Document (preferred), or consider extending one of the following types with your repository: org.springframework.data.elasticsearch.repository.ElasticsearchRepository
+2026-08-11T21:31:20.065Z  INFO 1 --- [backend-calistenic] [           main] .RepositoryConfigurationExtensionSupport : Spring Data Elasticsearch - Could not safely identify store assignment for repository candidate interface com.backend.modulo.repository.UserRepository; If you want this repository to be a Elasticsearch repository, consider annotating your entities with one of these annotations: org.springframework.data.elasticsearch.annotations.Document (preferred), or consider extending one of the following types with your repository: org.springframework.data.elasticsearch.repository.ElasticsearchRepository
+2026-08-11T21:31:20.135Z  INFO 1 --- [backend-calistenic] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 251 ms. Found 2 Elasticsearch repository interfaces.
+2026-08-11T21:31:20.227Z  INFO 1 --- [backend-calistenic] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-08-11T21:31:20.230Z  INFO 1 --- [backend-calistenic] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-11T21:31:20.300Z  INFO 1 --- [backend-calistenic] [           main] .RepositoryConfigurationExtensionSupport : Spring Data JPA - Could not safely identify store assignment for repository candidate interface com.backend.modulo.repository.ExerciseSearchRepository; If you want this repository to be a JPA repository, consider annotating your entities with one of these annotations: jakarta.persistence.Entity, jakarta.persistence.MappedSuperclass (preferred), or consider extending one of the following types with your repository: org.springframework.data.jpa.repository.JpaRepository
+2026-08-11T21:31:20.303Z  INFO 1 --- [backend-calistenic] [           main] .RepositoryConfigurationExtensionSupport : Spring Data JPA - Could not safely identify store assignment for repository candidate interface com.backend.modulo.repository.RoutineSearchRepository; If you want this repository to be a JPA repository, consider annotating your entities with one of these annotations: jakarta.persistence.Entity, jakarta.persistence.MappedSuperclass (preferred), or consider extending one of the following types with your repository: org.springframework.data.jpa.repository.JpaRepository
+2026-08-11T21:31:20.315Z  INFO 1 --- [backend-calistenic] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 50 ms. Found 2 JPA repository interfaces.
+2026-08-11T21:31:23.781Z  INFO 1 --- [backend-calistenic] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-08-11T21:31:23.825Z  INFO 1 --- [backend-calistenic] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-08-11T21:31:23.826Z  INFO 1 --- [backend-calistenic] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.50]
+2026-08-11T21:31:23.929Z  INFO 1 --- [backend-calistenic] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-08-11T21:31:23.932Z  INFO 1 --- [backend-calistenic] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 12798 ms
+2026-08-11T21:31:24.650Z  INFO 1 --- [backend-calistenic] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-08-11T21:31:24.701Z  INFO 1 --- [backend-calistenic] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-08-11T21:31:27.390Z  INFO 1 --- [backend-calistenic] [           main] o.f.c.internal.license.VersionPrinter    : Flyway Community Edition 9.22.1 by Redgate
+2026-08-11T21:31:27.391Z  INFO 1 --- [backend-calistenic] [           main] o.f.c.internal.license.VersionPrinter    : See release notes here: https://rd.gt/416ObMi
+2026-08-11T21:31:27.391Z  INFO 1 --- [backend-calistenic] [           main] o.f.c.internal.license.VersionPrinter    : 
+2026-08-11T21:31:27.642Z  INFO 1 --- [backend-calistenic] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://postgres:5432/calistenicdb (PostgreSQL 15.18)
+2026-08-11T21:31:28.041Z  INFO 1 --- [backend-calistenic] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table "public"."flyway_schema_history" does not exist yet
+2026-08-11T21:31:28.052Z  INFO 1 --- [backend-calistenic] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 1 migration (execution time 00:00.107s)
+2026-08-11T21:31:28.112Z  INFO 1 --- [backend-calistenic] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table "public"."flyway_schema_history" ...
+2026-08-11T21:31:28.319Z  INFO 1 --- [backend-calistenic] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": << Empty Schema >>
+2026-08-11T21:31:28.379Z  INFO 1 --- [backend-calistenic] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "1 - create exercises table"
+2026-08-11T21:31:28.542Z  INFO 1 --- [backend-calistenic] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 1 migration to schema "public", now at version v1 (execution time 00:00.079s)
+2026-08-11T21:31:29.075Z  INFO 1 --- [backend-calistenic] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-08-11T21:31:29.502Z  INFO 1 --- [backend-calistenic] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.39.Final
+2026-08-11T21:31:29.682Z  INFO 1 --- [backend-calistenic] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-08-11T21:31:32.262Z  INFO 1 --- [backend-calistenic] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-11T21:31:32.526Z  WARN 1 --- [backend-calistenic] [           main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-08-11T21:31:32.583Z  INFO 1 --- [backend-calistenic] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 15.18
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-08-11T21:31:38.820Z  INFO 1 --- [backend-calistenic] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-08-11T21:31:39.184Z  WARN 1 --- [backend-calistenic] [           main] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Warning Code: 0, SQLState: 00000
+2026-08-11T21:31:39.185Z  WARN 1 --- [backend-calistenic] [           main] o.h.engine.jdbc.spi.SqlExceptionHelper   : constraint "uk6dotkott2kjsp8vw4d0m25fb7" of relation "users" does not exist, skipping
+2026-08-11T21:31:39.227Z  INFO 1 --- [backend-calistenic] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-11T21:31:41.442Z  INFO 1 --- [backend-calistenic] [           main] eAuthenticationProviderManagerConfigurer : Global AuthenticationManager configured with AuthenticationProvider bean with name authenticationProvider
+2026-08-11T21:31:41.443Z  WARN 1 --- [backend-calistenic] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used by Spring Security for automatically configuring username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider. If the current configuration is intentional, to turn off this warning, increase the logging level of 'org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer' to ERROR
+2026-08-11T21:31:50.247Z  INFO 1 --- [backend-calistenic] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-08-11T21:31:52.431Z  INFO 1 --- [backend-calistenic] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-08-11T21:31:52.481Z  INFO 1 --- [backend-calistenic] [           main] com.backend.modulo.ModuloApplication     : Started ModuloApplication in 47.133 seconds (process running for 53.537)
+2026-08-11T21:31:53.818Z  INFO 1 --- [backend-calistenic] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-08-11T21:31:53.819Z  INFO 1 --- [backend-calistenic] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-08-11T21:31:53.824Z  INFO 1 --- [backend-calistenic] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 5 ms
+2026-08-11T21:31:54.078Z  INFO 1 --- [backend-calistenic] [           main] c.b.m.service.DataInitializerService     : Índice 'exercises' vacío. Insertando datos semilla...
+2026-08-11T21:31:55.684Z  INFO 1 --- [backend-calistenic] [           main] c.b.m.service.DataInitializerService     : Seed de ejercicios completo. 10 documentos insertados.
+2026-08-11T21:31:55.718Z  INFO 1 --- [backend-calistenic] [           main] c.b.m.service.DataInitializerService     : Índice 'routines' vacío. Insertando datos semilla...
+2026-08-11T21:31:56.105Z  INFO 1 --- [backend-calistenic] [           main] c.b.m.service.DataInitializerService     : Seed de rutinas completo. 5 documentos insertados.

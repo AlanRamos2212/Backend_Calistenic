@@ -27,10 +27,10 @@ public class DataInitializerService implements CommandLineRunner {
 
     private void seedExercises() {
         if (exerciseRepository.count() > 0) {
-            log.info("Índice 'exercises' ya contiene datos. Se omite el seed.");
+            log.debug("Índice 'exercises' ya contiene datos. Se omite el seed.");
             return;
         }
-        log.info("Índice 'exercises' vacío. Insertando datos semilla...");
+        log.debug("Índice 'exercises' vacío. Insertando datos semilla...");
 
         List<ExerciseDocument> seeds = List.of(
             ExerciseDocument.builder().id("ex_1").name("Push-ups Clásicos").description("Flexiones de brazo estándar en suelo.").category("upper_body").level("principiante").icon("💪").muscles(List.of("Pecho", "Tríceps", "Hombros anterior")).build(),
@@ -46,15 +46,15 @@ public class DataInitializerService implements CommandLineRunner {
         );
 
         exerciseRepository.saveAll(seeds);
-        log.info("Seed de ejercicios completo. {} documentos insertados.", seeds.size());
+        log.debug("Seed de ejercicios completo. {} documentos insertados.", seeds.size());
     }
 
     private void seedRoutines() {
         if (routineRepository.count() > 0) {
-            log.info("Índice 'routines' ya contiene datos. Se omite el seed.");
+            log.debug("Índice 'routines' ya contiene datos. Se omite el seed.");
             return;
         }
-        log.info("Índice 'routines' vacío. Insertando datos semilla...");
+        log.debug("Índice 'routines' vacío. Insertando datos semilla...");
 
         List<RoutineDocument> seeds = List.of(
             RoutineDocument.builder().id("rt_1").name("Upper Body Fuerza").description("Pull-ups, dips y push-ups para tren superior.").category("upper_body").level("intermedio").exerciseIds(List.of("ex_1", "ex_2", "ex_3")).durationMinutes(45).caloriesEstimate(320).hrRange("130-160").build(),
@@ -65,6 +65,6 @@ public class DataInitializerService implements CommandLineRunner {
         );
 
         routineRepository.saveAll(seeds);
-        log.info("Seed de rutinas completo. {} documentos insertados.", seeds.size());
+        log.debug("Seed de rutinas completo. {} documentos insertados.", seeds.size());
     }
 }

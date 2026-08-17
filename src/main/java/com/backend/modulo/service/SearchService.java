@@ -27,19 +27,19 @@ import java.util.stream.Collectors;
  * Implementa tres capacidades que las "derived queries" de Spring Data
  * (findByNameContaining...) NO pueden ofrecer:
  *
- *  1. FUZZY MATCHING: tolera errores de tipeo ("pus-ups" encuentra "push-ups")
- *     mediante fuzziness("AUTO"), que ajusta la distancia de Levenshtein
- *     permitida según la longitud del término.
+ * 1. FUZZY MATCHING: tolera errores de tipeo ("pus-ups" encuentra "push-ups")
+ * mediante fuzziness("AUTO"), que ajusta la distancia de Levenshtein
+ * permitida según la longitud del término.
  *
- *  2. RELEVANCIA POR BOOST: el campo "name" pesa más que "description"
- *     en el ranking de resultados (boost 3x vs 1x), porque un match en el
- *     nombre del ejercicio es más relevante que uno en su descripción.
+ * 2. RELEVANCIA POR BOOST: el campo "name" pesa más que "description"
+ * en el ranking de resultados (boost 3x vs 1x), porque un match en el
+ * nombre del ejercicio es más relevante que uno en su descripción.
  *
- *  3. FILTROS COMBINADOS: una query "bool" separa claramente las cláusulas
- *     de texto (should, afectan el score) de las cláusulas de filtro
- *     (filter, no afectan el score pero sí acotan resultados) — soportando
- *     la sintaxis "nivel:avanzado" o "musculo:triceps" documentada en la
- *     Práctica 6.
+ * 3. FILTROS COMBINADOS: una query "bool" separa claramente las cláusulas
+ * de texto (should, afectan el score) de las cláusulas de filtro
+ * (filter, no afectan el score pero sí acotan resultados) — soportando
+ * la sintaxis "nivel:avanzado" o "musculo:triceps" documentada en la
+ * Práctica 6.
  */
 @Slf4j
 @Service
@@ -64,7 +64,9 @@ public class SearchService {
 
         // Combina ambos índices y reordena por score global, mayor relevancia primero
         return results.stream()
-                .sorted(Comparator.comparing(SearchResultDto::getScore).reversed())
+                .sorted(Comparator.comparing(
+                        (SearchResultDto dto) -> dto.getScore(),
+                        Comparator.nullsLast(Comparator.naturalOrder())).reversed())
                 .collect(Collectors.toList());
     }
 
@@ -76,8 +78,7 @@ public class SearchService {
                 List.of("name^3", "description^1"), // boost: nombre pesa 3x más que descripción
                 "category",
                 "level",
-                "muscles"
-        );
+                "muscles");
 
         NativeQuery query = new NativeQueryBuilder()
                 .withQuery(boolQuery)
@@ -118,23 +119,24 @@ public class SearchService {
 
     /**
      * Construye la query bool combinando:
-     *  - should: multi_match con fuzziness AUTO sobre los campos de texto (afecta score)
-     *  - filter: term queries exactas sobre category/level/muscles (no afecta score)
+     * - should: multi_match con fuzziness AUTO sobre los campos de texto (afecta
+     * score)
+     * - filter: term queries exactas sobre category/level/muscles (no afecta score)
      *
      * minimumShouldMatch(1) asegura que al menos una cláusula "should" coincida
      * cuando hay término de búsqueda; si el término viene vacío (solo filtros,
      * ej. "nivel:avanzado" sin texto), se omite el bloque "should" por completo.
      */
     private Query buildBoolQuery(String term, SearchFilters f, List<String> boostedFields,
-                                  String categoryField, String levelField, String musclesField) {
+            String categoryField, String levelField, String musclesField) {
         BoolQuery.Builder bool = new BoolQuery.Builder();
 
         if (StringUtils.hasText(term)) {
             bool.should(s -> s.multiMatch(m -> m
                     .query(term)
                     .fields(boostedFields)
-                    .fuzziness("AUTO")          // tolera typos: "pus-ups" -> "push-ups"
-                    .prefixLength(2)            // no aplica fuzzy a los primeros 2 caracteres (más preciso)
+                    .fuzziness("AUTO") // tolera typos: "pus-ups" -> "push-ups"
+                    .prefixLength(2) // no aplica fuzzy a los primeros 2 caracteres (más preciso)
             ));
             bool.minimumShouldMatch("1");
         }
@@ -188,8 +190,8 @@ public class SearchService {
 
     /**
      * Parsea la sintaxis "campo:valor" del término de búsqueda, ej:
-     *   "push ups nivel:avanzado"        -> term="push ups", level="avanzado"
-     *   "musculo:triceps"                -> term="",          muscles=["triceps"]
+     * "push ups nivel:avanzado" -> term="push ups", level="avanzado"
+     * "musculo:triceps" -> term="", muscles=["triceps"]
      *
      * Los filtros explícitos recibidos por parámetro (SearchFilters f) tienen
      * prioridad sobre los detectados en el texto si ambos vienen presentes.
@@ -201,7 +203,8 @@ public class SearchService {
         for (String token : rawQuery.trim().split("\\s+")) {
             if (token.startsWith("nivel:") && existing.getLevel() == null) {
                 builder.level(token.substring(6).toLowerCase());
-            } else if (token.startsWith("musculo:") && (existing.getMuscles() == null || existing.getMuscles().isEmpty())) {
+            } else if (token.startsWith("musculo:")
+                    && (existing.getMuscles() == null || existing.getMuscles().isEmpty())) {
                 builder.muscles(List.of(capitalize(token.substring(8))));
             } else if (token.startsWith("categoria:") && existing.getCategory() == null) {
                 builder.category(token.substring(10).toLowerCase());
@@ -217,5 +220,6 @@ public class SearchService {
         return s.isEmpty() ? s : s.substring(0, 1).toUpperCase() + s.substring(1);
     }
 
-    private record ParsedQuery(String term, SearchFilters filters) {}
+    private record ParsedQuery(String term, SearchFilters filters) {
+    }
 }
