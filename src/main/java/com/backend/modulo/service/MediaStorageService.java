@@ -24,7 +24,17 @@ public class MediaStorageService {
         String original = file.getOriginalFilename() == null ? "file" : file.getOriginalFilename();
         String extension = "";
         int dot = original.lastIndexOf('.');
-        if (dot >= 0) extension = original.substring(dot).replaceAll("[^a-zA-Z0-9.]", "");
+        if (dot >= 0) {
+            extension = original.substring(dot).replaceAll("[^a-zA-Z0-9.]", "");
+        } else if (file.getContentType() != null) {
+            String ct = file.getContentType().toLowerCase();
+            if (ct.contains("png")) extension = ".png";
+            else if (ct.contains("webp")) extension = ".webp";
+            else if (ct.contains("gif")) extension = ".gif";
+            else extension = ".jpg";
+        } else {
+            extension = ".jpg";
+        }
         String filename = UUID.randomUUID() + extension.toLowerCase();
         Path destination = root.resolve(filename).normalize();
         if (!destination.startsWith(root)) throw new IOException("Ruta de archivo no válida.");

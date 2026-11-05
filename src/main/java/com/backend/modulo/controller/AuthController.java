@@ -136,9 +136,13 @@ public class AuthController {
                 }
 
                 String contentType = file.getContentType();
-                if (contentType == null || !contentType.startsWith("image/")) {
+                String originalFilename = file.getOriginalFilename() != null ? file.getOriginalFilename().toLowerCase() : "";
+                boolean isImageContentType = contentType != null && contentType.startsWith("image/");
+                boolean isImageExtension = originalFilename.matches("(?i).*\\.(jpg|jpeg|png|webp|gif|bmp)$");
+
+                if (!isImageContentType && !isImageExtension) {
                         return ResponseEntity.badRequest()
-                                        .body(java.util.Map.of("message", "Solo se permiten archivos de imagen."));
+                                        .body(java.util.Map.of("message", "Solo se permiten archivos de imagen (JPG, PNG, WEBP, GIF)."));
                 }
 
                 try {
