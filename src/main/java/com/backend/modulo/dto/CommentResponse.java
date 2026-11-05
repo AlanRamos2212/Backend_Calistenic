@@ -13,5 +13,7 @@ public class CommentResponse {
     Long userId;
     String userName;
     String content;
+    /** Portrait of the commenter; null renders initial-based avatar. */
+    String userAvatar;
     OffsetDateTime createdAt;
 }

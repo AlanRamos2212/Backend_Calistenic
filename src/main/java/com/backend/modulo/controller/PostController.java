@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.util.List;
@@ -34,10 +35,22 @@ public class PostController {
         return ResponseEntity.ok(postService.get(id, user(principal).getId()));
     }
 
-    @PostMapping
+    @PostMapping(consumes = "application/json")
     public ResponseEntity<PostResponse> create(@Valid @RequestBody CreatePostRequest request,
                                                @AuthenticationPrincipal UserDetails principal) {
         PostResponse response = postService.create(user(principal).getId(), request);
+        return ResponseEntity.created(URI.create("/api/posts/" + response.getId())).body(response);
+    }
+
+    /** Multipart create: content + optional image (jpg/png/webp/gif, max 5 MB). */
+    @PostMapping(consumes = "multipart/form-data")
+    public ResponseEntity<PostResponse> createMultipart(
+            @RequestParam("content") String content,
+            @RequestParam(value = "workoutSessionId", required = false) Long workoutSessionId,
+            @RequestParam(value = "image", required = false) MultipartFile image,
+            @AuthenticationPrincipal UserDetails principal) {
+        CreatePostRequest request = CreatePostRequest.builder().content(content).workoutSessionId(workoutSessionId).build();
+        PostResponse response = postService.create(user(principal).getId(), request, image);
         return ResponseEntity.created(URI.create("/api/posts/" + response.getId())).body(response);
     }
 

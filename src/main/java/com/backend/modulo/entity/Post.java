@@ -24,6 +24,10 @@ public class Post {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    /** Optional image path served by {@code GET /api/media/{filename}}; null means text-only post. */
+    @Column(name = "image_url", length = 1000)
+    private String imageUrl;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workout_session_id")
     private WearableSession workoutSession;
