@@ -1,6 +1,7 @@
 package com.backend.modulo.controller;
 
 import com.backend.modulo.dto.AuthResponse;
+import com.backend.modulo.dto.LoginRequest;
 import com.backend.modulo.dto.RegisterRequest;
 import com.backend.modulo.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,12 +13,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.containsString;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 public class WearableSessionControllerAuthTest {
 
     @Autowired
@@ -56,16 +60,58 @@ public class WearableSessionControllerAuthTest {
 
         AuthResponse authResponse = objectMapper.readValue(registerResponse, AuthResponse.class);
         validToken = authResponse.getToken();
-
-        System.out.println("Valid token obtained: " + validToken);
     }
 
     @Test
     public void testWearableSessionStatsWithValidToken() throws Exception {
         mockMvc.perform(get("/api/wearable-sessions/stats")
                 .header("Authorization", "Bearer " + validToken))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testLoginReturnsToken() throws Exception {
+        LoginRequest loginRequest = LoginRequest.builder()
+                .email(testEmail)
+                .password("TestPassword123!")
+                .build();
+
+        mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
-                .andDo(result -> System.out.println("Response: " + result.getResponse().getContentAsString()));
+                .andExpect(jsonPath("$.token").isNotEmpty());
+    }
+
+    @Test
+    public void testRegistrationValidationExplainsRequiredFields() throws Exception {
+        RegisterRequest invalidRequest = RegisterRequest.builder()
+                .name("A")
+                .email("invalid-email")
+                .password("short")
+                .build();
+
+        mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalidRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString("nombre")))
+                .andExpect(jsonPath("$.message", containsString("contraseña")));
+    }
+
+    @Test
+    public void testDuplicateRegistrationExplainsEmailConflict() throws Exception {
+        RegisterRequest duplicateRequest = RegisterRequest.builder()
+                .name("Another User")
+                .email(testEmail)
+                .password("TestPassword123!")
+                .build();
+
+        mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(duplicateRequest)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message", containsString("correo")));
     }
 
     @Test
@@ -83,13 +129,8 @@ public class WearableSessionControllerAuthTest {
 
     @Test
     public void testDeviceTokenEndpoint() throws Exception {
-        String deviceTokenResponse = mockMvc.perform(post("/api/auth/device-token")
+        mockMvc.perform(post("/api/auth/device-token")
                 .header("Authorization", "Bearer " + validToken))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        System.out.println("Device token response: " + deviceTokenResponse);
+                .andExpect(status().isOk());
     }
 }

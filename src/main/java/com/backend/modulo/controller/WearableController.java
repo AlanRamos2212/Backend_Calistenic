@@ -1,6 +1,7 @@
 package com.backend.modulo.controller;
 
 import com.backend.modulo.dto.DeviceTokenResponse;
+import com.backend.modulo.dto.WearableBindingResponse;
 import com.backend.modulo.entity.User;
 import com.backend.modulo.entity.WearableBinding;
 import com.backend.modulo.repository.UserRepository;
@@ -62,20 +63,31 @@ public class WearableController {
     }
 
     @GetMapping
-    public ResponseEntity<List<WearableBinding>> listBindings(
+    public ResponseEntity<List<WearableBindingResponse>> listBindings(
             @AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null)
             return ResponseEntity.status(401).build();
         User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado."));
-        return ResponseEntity.ok(wearableBindingService.findByUserId(user.getId()));
+        List<WearableBindingResponse> bindings = wearableBindingService.findByUserId(user.getId()).stream()
+                .map(WearableBindingResponse::from)
+                .toList();
+        return ResponseEntity.ok(bindings);
     }
 
     @PostMapping("/{wearableId}/confirm-pin")
-    public ResponseEntity<?> confirmPin(@PathVariable String wearableId) {
+    public ResponseEntity<?> confirmPin(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable String wearableId) {
+        if (userDetails == null)
+            return ResponseEntity.status(401).build();
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado."));
         try {
-            wearableBindingService.confirmPin(wearableId);
+            wearableBindingService.confirmPinForUser(wearableId, user.getId());
             return ResponseEntity.ok().build();
+        } catch (SecurityException ex) {
+            return ResponseEntity.status(403).build();
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.notFound().build();
         }

@@ -13,6 +13,8 @@ public interface WearableSessionRepository extends JpaRepository<WearableSession
 
     List<WearableSession> findByExercise_IdOrderByStartedAtDesc(Long exerciseId);
 
+    List<WearableSession> findByUser_IdAndExercise_IdOrderByStartedAtDesc(Long userId, Long exerciseId);
+
     List<WearableSession> findByUser_IdAndStartedAtBetweenOrderByStartedAtAsc(
             Long userId, OffsetDateTime from, OffsetDateTime to);
 }

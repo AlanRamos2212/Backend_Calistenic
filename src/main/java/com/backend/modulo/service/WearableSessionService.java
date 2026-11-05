@@ -159,6 +159,14 @@ public class WearableSessionService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<WearableSessionResponse> getExerciseSessionsForUser(Long userId, Long exerciseId) {
+        return wearableSessionRepository.findByUser_IdAndExercise_IdOrderByStartedAtDesc(userId, exerciseId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     private List<UserStatsResponse.ChartPointDto> buildWeeklySeries(List<WearableSession> sessions) {
         Map<DayOfWeek, Double> byDay = new EnumMap<>(DayOfWeek.class);
         for (DayOfWeek day : DayOfWeek.values()) {

@@ -51,6 +51,23 @@ public class WearableBindingService {
         return wearableBindingRepository.save(b);
     }
 
+    /**
+     * Confirma el PIN solo si el binding pertenece al usuario indicado.
+     * @throws IllegalArgumentException si no existe binding activo (→ 404)
+     * @throws SecurityException si el binding es de otro usuario (→ 403)
+     */
+    public WearableBinding confirmPinForUser(String wearableId, Long userId) {
+        var opt = wearableBindingRepository.findByWearableIdAndActiveTrue(wearableId);
+        if (opt.isEmpty())
+            throw new IllegalArgumentException("Binding not found");
+        WearableBinding b = opt.get();
+        if (!b.getUser().getId().equals(userId))
+            throw new SecurityException("Wearable no pertenece al usuario autenticado");
+        b.setPinConfirmed(true);
+        b.setConfirmedAt(OffsetDateTime.now());
+        return wearableBindingRepository.save(b);
+    }
+
     public void unbindWearable(String wearableId, Long userId) {
         var opt = wearableBindingRepository.findByWearableIdAndActiveTrue(wearableId);
         opt.ifPresent(binding -> {

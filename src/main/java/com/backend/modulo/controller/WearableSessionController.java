@@ -6,6 +6,7 @@ import com.backend.modulo.dto.WearableSessionStartRequest;
 import com.backend.modulo.dto.WearableSessionStopRequest;
 import com.backend.modulo.entity.User;
 import com.backend.modulo.repository.UserRepository;
+import com.backend.modulo.repository.WearableSessionRepository;
 import com.backend.modulo.service.WearableSessionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ public class WearableSessionController {
 
     private final WearableSessionService wearableSessionService;
     private final UserRepository userRepository;
+    private final WearableSessionRepository wearableSessionRepository;
 
     @PostMapping("/start")
     public ResponseEntity<WearableSessionResponse> start(
@@ -34,14 +36,20 @@ public class WearableSessionController {
     @PostMapping("/{sessionId}/metrics")
     public ResponseEntity<WearableSessionResponse> metrics(
             @PathVariable Long sessionId,
+            @AuthenticationPrincipal UserDetails principal,
             @RequestBody WearableSessionMetricsRequest request) {
+        Long userId = requireUser(principal).getId();
+        assertSessionOwner(sessionId, userId);
         return ResponseEntity.ok(wearableSessionService.addMetrics(sessionId, request));
     }
 
     @PostMapping("/{sessionId}/stop")
     public ResponseEntity<WearableSessionResponse> stop(
             @PathVariable Long sessionId,
+            @AuthenticationPrincipal UserDetails principal,
             @RequestBody WearableSessionStopRequest request) {
+        Long userId = requireUser(principal).getId();
+        assertSessionOwner(sessionId, userId);
         return ResponseEntity.ok(wearableSessionService.stopSession(sessionId, request));
     }
 
@@ -63,7 +71,10 @@ public class WearableSessionController {
     }
 
     @GetMapping("/{sessionId}")
-    public ResponseEntity<WearableSessionResponse> getById(@PathVariable Long sessionId) {
+    public ResponseEntity<WearableSessionResponse> getById(
+            @PathVariable Long sessionId,
+            @AuthenticationPrincipal UserDetails principal) {
+        assertSessionOwner(sessionId, requireUser(principal).getId());
         return ResponseEntity.ok(wearableSessionService.getSession(sessionId));
     }
 
@@ -76,8 +87,11 @@ public class WearableSessionController {
     }
 
     @GetMapping("/exercise/{exerciseId}")
-    public ResponseEntity<List<WearableSessionResponse>> byExercise(@PathVariable Long exerciseId) {
-        return ResponseEntity.ok(wearableSessionService.getExerciseSessions(exerciseId));
+    public ResponseEntity<List<WearableSessionResponse>> byExerciseForUser(
+            @PathVariable Long exerciseId,
+            @AuthenticationPrincipal UserDetails principal) {
+        return ResponseEntity.ok(wearableSessionService.getExerciseSessionsForUser(
+                requireUser(principal).getId(), exerciseId));
     }
 
     private Long resolveCurrentUserId(UserDetails principal, Long fallbackUserId) {
@@ -90,5 +104,24 @@ public class WearableSessionController {
             return fallbackUserId;
         }
         throw new IllegalArgumentException("Usuario no autenticado.");
+    }
+
+    private User requireUser(UserDetails principal) {
+        if (principal == null) {
+            throw new IllegalArgumentException("Usuario no autenticado.");
+        }
+        return userRepository.findByEmail(principal.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado."));
+    }
+
+    private void assertSessionOwner(Long sessionId, Long userId) {
+        boolean ownsSession = wearableSessionRepository.findById(sessionId)
+                .map(session -> session.getUser() != null
+                        && userId.equals(session.getUser().getId()))
+                .orElse(false);
+        if (!ownsSession) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.NOT_FOUND, "Sesión no encontrada");
+        }
     }
 }

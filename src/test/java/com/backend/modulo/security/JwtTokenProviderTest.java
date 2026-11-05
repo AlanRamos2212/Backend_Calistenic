@@ -3,23 +3,27 @@ package com.backend.modulo.security;
 import com.backend.modulo.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
+import io.jsonwebtoken.JwtException;
 
+import java.lang.reflect.Field;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-public class JwtTokenProviderTest {
+/** Unit tests for JWT rules without a Spring context or external services. */
+class JwtTokenProviderTest {
 
-    @Autowired
+    private static final String SECRET =
+            "CalistenicTrackUnitTestSecretKeyMustBeLongEnoughForHS256";
+
     private JwtTokenProvider jwtTokenProvider;
-
     private UserDetails userDetails;
 
     @BeforeEach
-    public void setUp() {
-        // Create a mock user
+    void setUp() throws Exception {
+        jwtTokenProvider = new JwtTokenProvider(SECRET);
+        setField(jwtTokenProvider, "jwtExpirationMs", 3_600_000L);
+        setField(jwtTokenProvider, "deviceJwtExpirationMs", 900_000L);
+
         User user = User.builder()
                 .id(1L)
                 .name("Test User")
@@ -31,27 +35,46 @@ public class JwtTokenProviderTest {
     }
 
     @Test
-    public void testGenerateAndValidateToken() {
-        // Generate token
+    void validTokenIsGeneratedAndValidated() {
         String token = jwtTokenProvider.generateToken(userDetails);
+
         assertNotNull(token);
-
-        // Validate token
-        Boolean isValid = jwtTokenProvider.validateToken(token, userDetails);
-        assertTrue(isValid, "Token should be valid");
-
-        // Extract username from token
-        String extractedUsername = jwtTokenProvider.extractUsername(token);
-        assertEquals(userDetails.getUsername(), extractedUsername, "Username should match");
+        assertTrue(jwtTokenProvider.validateToken(token, userDetails));
+        assertEquals(userDetails.getUsername(), jwtTokenProvider.extractUsername(token));
     }
 
     @Test
-    public void testGenerateDeviceToken() {
-        String deviceToken = jwtTokenProvider.generateDeviceToken(userDetails);
-        assertNotNull(deviceToken);
+    void tokenForAnotherUserIsRejected() {
+        String token = jwtTokenProvider.generateToken(userDetails);
+        User anotherUser = User.builder()
+                .id(2L)
+                .name("Another User")
+                .email("another@example.com")
+                .password("encoded_password")
+                .role(User.Role.USER)
+                .build();
 
-        // Device token should also validate
-        Boolean isValid = jwtTokenProvider.validateToken(deviceToken, userDetails);
-        assertTrue(isValid, "Device token should be valid");
+        assertFalse(jwtTokenProvider.validateToken(token, anotherUser));
+    }
+
+    @Test
+    void malformedTokenRaisesJwtError() {
+        assertThrows(JwtException.class,
+                () -> jwtTokenProvider.validateToken("not-a-jwt", userDetails));
+    }
+
+    @Test
+    void deviceTokenIsValidAndContainsDeviceUseClaim() {
+        String deviceToken = jwtTokenProvider.generateDeviceToken(userDetails);
+
+        assertNotNull(deviceToken);
+        assertTrue(jwtTokenProvider.validateToken(deviceToken, userDetails));
+        assertEquals("device", jwtTokenProvider.extractAllClaims(deviceToken).get("token_use"));
+    }
+
+    private static void setField(Object target, String name, long value) throws Exception {
+        Field field = target.getClass().getDeclaredField(name);
+        field.setAccessible(true);
+        field.setLong(target, value);
     }
 }
