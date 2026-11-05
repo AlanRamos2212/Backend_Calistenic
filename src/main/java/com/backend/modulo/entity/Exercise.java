@@ -21,6 +21,15 @@ public class Exercise {
     @Column(length = 1000)
     private String description;
 
+    @Column(name = "image_url", length = 1000)
+    private String imageUrl;
+
+    @Column(name = "gif_url", length = 1000)
+    private String gifUrl;
+
+    @Column(name = "technique_description", columnDefinition = "TEXT")
+    private String techniqueDescription;
+
     @Column(nullable = false)
     private String category;
 
