@@ -30,6 +30,7 @@ public class RoutineDetailResponse {
         String category;
         String level;
         String muscles;
+        Integer estimatedCalories;
         Integer position;
         Integer sets;
         Integer reps;

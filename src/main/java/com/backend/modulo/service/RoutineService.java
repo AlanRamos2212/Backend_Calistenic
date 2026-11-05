@@ -114,6 +114,7 @@ public class RoutineService {
                 .category(e.getCategory())
                 .level(e.getLevel())
                 .muscles(e.getMuscles())
+                .estimatedCalories(e.getEstimatedCalories())
                 .position(re.getPosition())
                 .sets(re.getSets())
                 .reps(re.getReps())
