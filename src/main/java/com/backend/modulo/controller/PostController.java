@@ -83,6 +83,14 @@ public class PostController {
         return ResponseEntity.ok(postService.addComment(id, user(principal).getId(), request));
     }
 
+    /** Deletes a comment authored by the authenticated user. */
+    @DeleteMapping("/{id}/comments/{commentId}")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long id, @PathVariable Long commentId,
+                                              @AuthenticationPrincipal UserDetails principal) {
+        postService.deleteComment(id, commentId, user(principal).getId());
+        return ResponseEntity.noContent().build();
+    }
+
     private User user(UserDetails principal) {
         return userRepository.findByEmail(principal.getUsername()).orElseThrow();
     }

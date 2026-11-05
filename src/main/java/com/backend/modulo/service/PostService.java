@@ -157,6 +157,20 @@ public class PostService {
         return commentResponse(commentRepository.save(comment));
     }
 
+    /** Deletes a comment authored by the caller on the given post. */
+    @Transactional
+    public void deleteComment(Long postId, Long commentId, Long userId) {
+        PostComment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> notFound("Comentario no encontrado."));
+        if (!comment.getPost().getId().equals(postId)) {
+            throw notFound("El comentario no pertenece a este post.");
+        }
+        if (!comment.getUser().getId().equals(userId)) {
+            throw forbidden();
+        }
+        commentRepository.delete(comment);
+    }
+
     private PostResponse response(Post post, Long userId) {
         return PostResponse.builder().id(post.getId()).userId(post.getUser().getId())
                 .userName(post.getUser().getName())
