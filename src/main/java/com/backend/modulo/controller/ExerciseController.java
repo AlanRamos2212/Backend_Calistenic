@@ -32,6 +32,13 @@ public class ExerciseController {
         return ResponseEntity.ok(exerciseRepository.findAll());
     }
 
+    /** Full exercise detail: media paths plus technique description. */
+    @GetMapping("/{id}")
+    public ResponseEntity<Exercise> detail(@PathVariable Long id) {
+        return ResponseEntity.ok(exerciseRepository.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Ejercicio no encontrado.")));
+    }
+
     @PostMapping("/{id}/media")
     public ResponseEntity<Exercise> uploadMedia(
             @PathVariable Long id,
