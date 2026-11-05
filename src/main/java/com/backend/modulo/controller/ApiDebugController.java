@@ -3,6 +3,7 @@ package com.backend.modulo.controller;
 import com.backend.modulo.security.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Endpoint de depuración SOLO para desarrollo local.
+ * Echo de claims del JWT; requiere el perfil "dev" para existir.
+ */
+@Profile("dev")
 @RestController
 @RequiredArgsConstructor
 public class ApiDebugController {
