@@ -111,6 +111,8 @@ public class CloudinaryMediaStorageService implements MediaStorage {
         Map<String, String> params = new LinkedHashMap<>();
         params.put("public_id", publicId);
         params.put("timestamp", timestamp);
+        // invalidate=true purges the CDN copy, not just the asset repository.
+        params.put("invalidate", "true");
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         try {
