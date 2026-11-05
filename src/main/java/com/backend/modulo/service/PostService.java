@@ -27,7 +27,7 @@ public class PostService {
     private final PostCommentRepository commentRepository;
     private final UserRepository userRepository;
     private final WearableSessionRepository sessionRepository;
-    private final com.backend.modulo.service.MediaStorageService mediaStorageService;
+    private final MediaStorage mediaStorageService;
 
     /** Content types accepted for optional post images. */
     private static final List<String> ALLOWED_IMAGE_TYPES = List.of("image/jpeg", "image/png", "image/webp", "image/gif");
@@ -45,7 +45,7 @@ public class PostService {
                        PostCommentRepository commentRepository,
                        UserRepository userRepository,
                        WearableSessionRepository sessionRepository,
-                       com.backend.modulo.service.MediaStorageService mediaStorageService,
+                       com.backend.modulo.service.MediaStorage mediaStorageService,
                        Optional<PostSearchRepository> postSearchRepository) {
         this.postRepository = postRepository;
         this.likeRepository = likeRepository;
@@ -75,8 +75,7 @@ public class PostService {
         if (image != null && !image.isEmpty()) {
             validateImage(image);
             try {
-                String filename = mediaStorageService.store(image);
-                builder.imageUrl("/api/media/" + filename);
+                builder.imageUrl(mediaStorageService.store(image));
             } catch (java.io.IOException e) {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No se pudo guardar la imagen.");
             }
@@ -126,7 +125,7 @@ public class PostService {
     private void deleteLocalMedia(String imageUrl) {
         if (imageUrl == null || imageUrl.isBlank()) return;
         try {
-            mediaStorageService.deleteIfExists(imageUrl);
+            mediaStorageService.delete(imageUrl);
         } catch (java.io.IOException ex) {
             // The post is already deleted; keep the API successful and retain
             // a diagnostic so the orphan can be cleaned up later.

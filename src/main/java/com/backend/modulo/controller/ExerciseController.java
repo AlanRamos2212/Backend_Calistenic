@@ -2,7 +2,7 @@ package com.backend.modulo.controller;
 
 import com.backend.modulo.entity.Exercise;
 import com.backend.modulo.repository.ExerciseRepository;
-import com.backend.modulo.service.MediaStorageService;
+import com.backend.modulo.service.MediaStorage;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -25,7 +25,7 @@ import java.util.List;
 public class ExerciseController {
 
     private final ExerciseRepository exerciseRepository;
-    private final MediaStorageService mediaStorageService;
+    private final MediaStorage mediaStorageService;
 
     @GetMapping
     public ResponseEntity<List<Exercise>> listAll() {
@@ -45,8 +45,8 @@ public class ExerciseController {
         }
         Exercise exercise = exerciseRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ejercicio no encontrado."));
-        if (image != null && !image.isEmpty()) exercise.setImageUrl("/api/media/" + mediaStorageService.store(image));
-        if (gif != null && !gif.isEmpty()) exercise.setGifUrl("/api/media/" + mediaStorageService.store(gif));
+        if (image != null && !image.isEmpty()) exercise.setImageUrl(mediaStorageService.store(image));
+        if (gif != null && !gif.isEmpty()) exercise.setGifUrl(mediaStorageService.store(gif));
         if (techniqueDescription != null) exercise.setTechniqueDescription(techniqueDescription.trim());
         return ResponseEntity.ok(exerciseRepository.save(exercise));
     }

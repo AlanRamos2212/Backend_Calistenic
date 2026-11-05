@@ -1,6 +1,7 @@
 package com.backend.modulo.service;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -10,15 +11,21 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+/**
+ * Default strategy: files live in a configurable local directory
+ * ({@code uploads/media}) and are served by the {@link com.backend.modulo.controller.MediaController}.
+ */
 @Service
-public class MediaStorageService {
+@ConditionalOnProperty(name = "app.media.strategy", havingValue = "local", matchIfMissing = true)
+public class LocalMediaStorageService implements MediaStorage {
     private final Path root;
 
-    public MediaStorageService(@Value("${app.media.storage-dir:uploads/media}") String storageDir) throws IOException {
+    public LocalMediaStorageService(@Value("${app.media.storage-dir:uploads/media}") String storageDir) throws IOException {
         root = Paths.get(storageDir).toAbsolutePath().normalize();
         Files.createDirectories(root);
     }
 
+    @Override
     public String store(MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) return null;
         String original = file.getOriginalFilename() == null ? "file" : file.getOriginalFilename();
@@ -39,20 +46,11 @@ public class MediaStorageService {
         Path destination = root.resolve(filename).normalize();
         if (!destination.startsWith(root)) throw new IOException("Ruta de archivo no válida.");
         Files.copy(file.getInputStream(), destination);
-        return filename;
+        return "/api/media/" + filename;
     }
 
-    public Path resolve(String filename) {
-        Path path = root.resolve(filename).normalize();
-        return path.startsWith(root) ? path : null;
-    }
-
-    /**
-     * Deletes a locally stored media file referenced by an API URL.
-     *
-     * @return true when a file was deleted, false when there was no local file
-     */
-    public boolean deleteIfExists(String mediaUrl) throws IOException {
+    @Override
+    public boolean delete(String mediaUrl) throws IOException {
         if (mediaUrl == null || mediaUrl.isBlank()) return false;
 
         String filename = mediaUrl;
@@ -67,5 +65,11 @@ public class MediaStorageService {
             return false;
         }
         return Files.deleteIfExists(file);
+    }
+
+    /** Resolves a bare filename to a safe path inside the storage root, or null. */
+    public Path resolve(String filename) {
+        Path path = root.resolve(filename).normalize();
+        return path.startsWith(root) ? path : null;
     }
 }

@@ -9,7 +9,7 @@ import com.backend.modulo.dto.UpdateProfileRequest;
 import com.backend.modulo.entity.User;
 import com.backend.modulo.repository.UserRepository;
 import com.backend.modulo.security.JwtTokenProvider;
-import com.backend.modulo.service.MediaStorageService;
+import com.backend.modulo.service.MediaStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
@@ -32,7 +32,7 @@ public class AuthController {
         private final PasswordEncoder passwordEncoder;
         private final JwtTokenProvider jwtTokenProvider;
         private final UserDetailsService userDetailsService;
-        private final MediaStorageService mediaStorageService;
+        private final MediaStorage mediaStorageService;
 
         @PostMapping("/register")
         public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
@@ -146,17 +146,17 @@ public class AuthController {
                 }
 
                 try {
-                        String filename = mediaStorageService.store(file);
+                        String mediaPath = mediaStorageService.store(file);
                         // Persist avatarUrl on the user record so /me returns it
                         User user = userRepository.findByEmail(userDetails.getUsername())
                                         .orElseThrow(() -> new IllegalArgumentException(
                                                         "Usuario no encontrado en la base de datos."));
-                        user.setAvatarUrl(filename);
+                        user.setAvatarUrl(mediaPath);
                         userRepository.save(user);
 
                         return ResponseEntity.ok(AvatarUploadResponse.builder()
-                                        .filename(filename)
-                                        .avatarUrl("/api/media/" + filename)
+                                        .filename(mediaPath.substring(mediaPath.lastIndexOf('/') + 1))
+                                        .avatarUrl(mediaPath)
                                         .build());
                 } catch (Exception e) {
                         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
