@@ -46,4 +46,26 @@ public class MediaStorageService {
         Path path = root.resolve(filename).normalize();
         return path.startsWith(root) ? path : null;
     }
+
+    /**
+     * Deletes a locally stored media file referenced by an API URL.
+     *
+     * @return true when a file was deleted, false when there was no local file
+     */
+    public boolean deleteIfExists(String mediaUrl) throws IOException {
+        if (mediaUrl == null || mediaUrl.isBlank()) return false;
+
+        String filename = mediaUrl;
+        String marker = "/api/media/";
+        int markerIndex = mediaUrl.indexOf(marker);
+        if (markerIndex >= 0) {
+            filename = mediaUrl.substring(markerIndex + marker.length());
+        }
+
+        Path file = resolve(filename);
+        if (file == null || filename.isBlank() || filename.contains("/") || filename.contains("\\")) {
+            return false;
+        }
+        return Files.deleteIfExists(file);
+    }
 }

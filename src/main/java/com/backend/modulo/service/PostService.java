@@ -12,12 +12,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class PostService {
+    private static final Logger log = LoggerFactory.getLogger(PostService.class);
 
     private final PostRepository postRepository;
     private final PostLikeRepository likeRepository;
@@ -114,8 +117,21 @@ public class PostService {
     @Transactional
     public void delete(Long id, Long userId) {
         Post post = ownedPost(id, userId);
+        String imageUrl = post.getImageUrl();
         postRepository.delete(post);
         postSearchRepository.ifPresent(repo -> repo.deleteById(String.valueOf(id)));
+        deleteLocalMedia(imageUrl);
+    }
+
+    private void deleteLocalMedia(String imageUrl) {
+        if (imageUrl == null || imageUrl.isBlank()) return;
+        try {
+            mediaStorageService.deleteIfExists(imageUrl);
+        } catch (java.io.IOException ex) {
+            // The post is already deleted; keep the API successful and retain
+            // a diagnostic so the orphan can be cleaned up later.
+            log.warn("No se pudo eliminar el archivo multimedia del post: {}", imageUrl, ex);
+        }
     }
 
     @Transactional
