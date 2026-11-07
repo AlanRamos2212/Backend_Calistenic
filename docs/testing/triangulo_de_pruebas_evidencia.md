@@ -77,6 +77,17 @@
 
 ---
 
+---
+
+## Adendumos de producción (corte 6-7-nov: Render + PostgreSQL Cloud)
+
+- **Servidor:** backend Spring Boot desplegado en Render (`https://backend-calistenic.onrender.com`), health `GET /actuator/health` → **200 UP**, Flyway en nube hasta **V12** (`support_reports`).
+- **Almacenamiento:** PostgreSQL 15 (Render, volumen persistente).
+- **Smoke de producción (2026-11-06):** register 200, login 200, routines 200, user-routines 201, posts 201 — todos OK contra `https://backend-calistenic.onrender.com/api`.
+- **Soporte técnico (Práctica 7) en producción:** `POST /api/reports` → 201 (reporte OPEN creado), `GET /api/reports/mine` → 200 `[]` (usuario autenticado, sin reportes previos).
+- **Build móvil v1.0.0:** `flutter build apk --release --dart-define=API_BASE_URL=https://backend-calistenic.onrender.com/api` → `build/app/outputs/flutter-apk/app-release.apk` (52.6 MB) adjunto a GitHub Release `v1.0.0` (AlanRamos2212/Calistenic_Mobile).
+- **Web:** rutas protegidas con `AuthGuard` (`dashboard`, `ejercicios`, `progreso`, `comunidad`, `soporte`, `perfil`); landing/contacto/politicas/privacidad públicas.
+
 ## Resultado general de las pruebas
 
 | ID | Prueba | Resultado | Observación |
