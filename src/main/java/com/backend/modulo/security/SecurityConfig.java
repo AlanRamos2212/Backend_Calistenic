@@ -55,7 +55,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/search").permitAll() // Elasticsearch endpoints de búsqueda públicos
                         .requestMatchers("/api/exercises").permitAll()
                         .requestMatchers("/api/media/**").permitAll()
-                        .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception
