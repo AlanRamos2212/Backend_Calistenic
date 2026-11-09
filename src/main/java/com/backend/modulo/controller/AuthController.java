@@ -6,6 +6,7 @@ import com.backend.modulo.dto.DeviceTokenResponse;
 import com.backend.modulo.dto.LoginRequest;
 import com.backend.modulo.dto.RegisterRequest;
 import com.backend.modulo.dto.UpdateProfileRequest;
+import com.backend.modulo.dto.UserListResponse;
 import com.backend.modulo.entity.User;
 import com.backend.modulo.repository.UserRepository;
 import com.backend.modulo.security.JwtTokenProvider;
@@ -17,10 +18,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import jakarta.validation.Valid;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -195,6 +200,26 @@ public class AuthController {
                                                 .build());
         }
 
+        // ── Admin-only user list (for soporte admin panel) ──────────────
+
+        @GetMapping("/users")
+        public ResponseEntity<List<UserListResponse>> listUsers(
+                @AuthenticationPrincipal UserDetails principal) {
+            if (!isAdmin(principal)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+            return ResponseEntity.ok(userRepository.findAll().stream()
+                    .map(u -> UserListResponse.builder()
+                            .id(u.getId())
+                            .name(u.getName())
+                            .email(u.getEmail())
+                            .role(u.getRole().name())
+                            .createdAt(u.getCreatedAt())
+                            .avatarUrl(u.getAvatarUrl())
+                            .build())
+                    .collect(Collectors.toList()));
+        }
+
         // ── helpers ──────────────────────────────────────────────────────────────
 
         private com.backend.modulo.dto.UserProfileResponse toProfileResponse(User user) {
@@ -206,5 +231,10 @@ public class AuthController {
                                 .createdAt(user.getCreatedAt())
                                 .avatarUrl(user.getAvatarUrl())
                                 .build();
+        }
+
+        private boolean isAdmin(UserDetails principal) {
+            return principal != null && userRepository.findByEmail(principal.getUsername())
+                    .map(u -> u.getRole() == User.Role.ADMIN).orElse(false);
         }
 }
