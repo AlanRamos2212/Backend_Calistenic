@@ -11,7 +11,8 @@ import org.springframework.stereotype.Component;
 /**
  * Admin bootstrap (Practica 7 - Soporte tecnico): garantiza que exista un
  * usuario ADMIN en la base de datos para el flujo de reportes de soporte.
- * Es idempotente: solo crea el admin si el email no esta registrado.
+ * Es idempotente: crea el admin si no existe, y actualiza rol/contraseña
+ * si el email ya pertenece a otro rol.
  */
 @Slf4j
 @Component
@@ -27,17 +28,29 @@ public class AdminBootstrapService implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (userRepository.existsByEmail(ADMIN_EMAIL)) {
-            log.debug("Admin '{}' ya existe en la base de datos. Bootstrap omitido.", ADMIN_EMAIL);
-            return;
-        }
-        User admin = User.builder()
-                .name(ADMIN_NAME)
-                .email(ADMIN_EMAIL)
-                .password(passwordEncoder.encode(ADMIN_PASSWORD))
-                .role(User.Role.ADMIN)
-                .build();
-        User saved = userRepository.save(admin);
-        log.info("Admin de soporte creado: {} (id={})", saved.getEmail(), saved.getId());
+        User admin = userRepository.findByEmail(ADMIN_EMAIL).map(u -> {
+            boolean changed = false;
+            if (u.getRole() != User.Role.ADMIN) {
+                u.setRole(User.Role.ADMIN);
+                changed = true;
+            }
+            if (passwordEncoder.matches(ADMIN_PASSWORD, u.getPassword()) == false) {
+                u.setPassword(passwordEncoder.encode(ADMIN_PASSWORD));
+                changed = true;
+            }
+            if (changed) {
+                return userRepository.save(u);
+            }
+            return u;
+        }).orElseGet(() -> {
+            User nuevo = User.builder()
+                    .name(ADMIN_NAME)
+                    .email(ADMIN_EMAIL)
+                    .password(passwordEncoder.encode(ADMIN_PASSWORD))
+                    .role(User.Role.ADMIN)
+                    .build();
+            return userRepository.save(nuevo);
+        });
+        log.info("Admin de soporte listo: {} (id={}, role={})", admin.getEmail(), admin.getId(), admin.getRole());
     }
 }
