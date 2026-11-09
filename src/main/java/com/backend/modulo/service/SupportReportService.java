@@ -82,6 +82,17 @@ public class SupportReportService {
         return toResponse(reportRepository.save(report));
     }
 
+    /** Admin-only delete: only RESOLVED reports can be removed. */
+    @Transactional
+    public void delete(Long id) {
+        SupportReport report = reportRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Reporte no encontrado."));
+        if (report.getStatus() != SupportReport.Status.RESOLVED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Solo se pueden eliminar reportes RESOLVED.");
+        }
+        reportRepository.delete(report);
+    }
+
     private String storeImage(MultipartFile image) {
         if (image == null || image.isEmpty()) return null;
         try {

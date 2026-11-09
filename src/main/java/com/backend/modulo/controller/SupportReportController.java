@@ -78,6 +78,17 @@ public class SupportReportController {
         return ResponseEntity.ok(reportService.updateStatus(id, request.getStatus()));
     }
 
+    /** Admin-only delete: only RESOLVED reports can be removed. */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id,
+                                        @AuthenticationPrincipal UserDetails principal) {
+        if (!isAdmin(principal)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        reportService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
     private boolean isAdmin(UserDetails principal) {
         return principal != null && userRepository.findByEmail(principal.getUsername())
                 .map(u -> u.getRole() == User.Role.ADMIN).orElse(false);
