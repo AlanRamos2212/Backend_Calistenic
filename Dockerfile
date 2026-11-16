@@ -17,6 +17,10 @@ RUN mvn clean package -DskipTests -B
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
+# Free tier de Render (512 MB, CPU throttled): C1-only y heap acotado
+# reducen el CPU/memoria del arranque para evitar el timeout de puertos.
+ENV JAVA_TOOL_OPTIONS="-XX:TieredStopAtLevel=1 -Xmx300m -XX:+UseSerialGC"
+
 COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8082
