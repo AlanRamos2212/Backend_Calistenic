@@ -3,6 +3,7 @@ package com.backend.modulo.controller;
 import com.backend.modulo.dto.AuthResponse;
 import com.backend.modulo.dto.LoginRequest;
 import com.backend.modulo.dto.RegisterRequest;
+import com.backend.modulo.dto.WearableSessionStartRequest;
 import com.backend.modulo.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -132,5 +133,40 @@ public class WearableSessionControllerAuthTest {
         mockMvc.perform(post("/api/auth/device-token")
                 .header("Authorization", "Bearer " + validToken))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testWearableSessionStartValidReturns201() throws Exception {
+        WearableSessionStartRequest request = new WearableSessionStartRequest();
+        request.setExerciseId(1L);
+
+        mockMvc.perform(post("/api/wearable-sessions/start")
+                .header("Authorization", "Bearer " + validToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    public void testWearableSessionStartInvalidExerciseReturns400() throws Exception {
+        WearableSessionStartRequest request = new WearableSessionStartRequest();
+        request.setExerciseId(999999L);
+
+        mockMvc.perform(post("/api/wearable-sessions/start")
+                .header("Authorization", "Bearer " + validToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testWearableSessionStartWithoutTokenReturns401() throws Exception {
+        WearableSessionStartRequest request = new WearableSessionStartRequest();
+        request.setExerciseId(1L);
+
+        mockMvc.perform(post("/api/wearable-sessions/start")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized());
     }
 }
