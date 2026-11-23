@@ -20,9 +20,19 @@ public class DataInitializerService implements CommandLineRunner {
     private final RoutineSearchRepository routineRepository;
 
     @Override
-    public void run(String... args) throws Exception {
-        seedExercises();
-        seedRoutines();
+    public void run(String... args) {
+        // Elasticsearch sigue siendo obligatorio para la busqueda avanzada, pero un
+        // 503 temporal del cluster gestionado no debe tumbar el arranque de la API.
+        try {
+            seedExercises();
+        } catch (RuntimeException ex) {
+            log.warn("No se pudo verificar/sembrar el indice 'exercises': {}", ex.getMessage());
+        }
+        try {
+            seedRoutines();
+        } catch (RuntimeException ex) {
+            log.warn("No se pudo verificar/sembrar el indice 'routines': {}", ex.getMessage());
+        }
     }
 
     private void seedExercises() {

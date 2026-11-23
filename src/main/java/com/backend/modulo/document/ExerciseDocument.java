@@ -22,7 +22,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(indexName = "exercises")
+/** createIndex=false evita el HEAD /exercises del arranque; el indice ya existe en Elastic Cloud. */
+@Document(indexName = "exercises", createIndex = false)
 public class ExerciseDocument {
 
     @Id

@@ -8,7 +8,8 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.time.OffsetDateTime;
 
-@Document(indexName = "posts")
+/** createIndex=false evita el HEAD /posts del arranque; el indice ya existe en Elastic Cloud. */
+@Document(indexName = "posts", createIndex = false)
 @Getter
 @Setter
 @NoArgsConstructor

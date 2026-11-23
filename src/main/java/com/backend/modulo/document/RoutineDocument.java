@@ -20,7 +20,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(indexName = "routines")
+/** createIndex=false evita el HEAD /routines del arranque; el indice ya existe en Elastic Cloud. */
+@Document(indexName = "routines", createIndex = false)
 public class RoutineDocument {
 
     @Id
